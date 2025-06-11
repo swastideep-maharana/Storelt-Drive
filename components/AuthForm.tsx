@@ -3,6 +3,9 @@
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,36 +18,29 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
+import { createAccount, sendEmailOTP } from "@/lib/actions/user.actions";
+import OTPModal from "./OTPModal";
+
 const formSchema = z.object({
-  //   username: z
-  //     .string()
-  //     .min(2, "Username must be at least 2 characters")
-  //     .max(50, "Username must be at most 50 characters"),
   fullName: z.string().optional(),
   email: z.string().email("Invalid email"),
 });
-import React, { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { createAccount } from "@/lib/actions/user.actions";
 
 type FormType = "sign-in" | "sign-up";
 
 const AuthForm = ({ type }: { type: FormType }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [accountId, setAccountId] = useState("null");
-  // 1. Define your form.
+  const [accountId, setAccountId] = useState("");
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      //   username: "",
       fullName: "",
       email: "",
     },
   });
 
-  // 2. Define a submit handler.
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     setErrorMessage("");
@@ -55,8 +51,11 @@ const AuthForm = ({ type }: { type: FormType }) => {
         email: values.email,
       });
 
-      setAccountId(user.accountId);
-    } catch {
+      await sendEmailOTP({ email: values.email }); 
+
+      setAccountId(user.accountId); 
+    } catch (error) {
+      console.error("Error creating account or sending OTP:", error);
       setErrorMessage("Failed to create account. Please try again.");
     } finally {
       setIsLoading(false);
@@ -68,8 +67,9 @@ const AuthForm = ({ type }: { type: FormType }) => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="auth-form">
           <h1 className="form-title">
-            {type === "sign-in" ? "sign In" : "Sign Up"}
+            {type === "sign-in" ? "Sign In" : "Sign Up"}
           </h1>
+
           {type === "sign-up" && (
             <FormField
               control={form.control}
@@ -86,12 +86,12 @@ const AuthForm = ({ type }: { type: FormType }) => {
                       />
                     </FormControl>
                   </div>
-
                   <FormMessage className="sahd-form-message" />
                 </FormItem>
               )}
             />
           )}
+
           <FormField
             control={form.control}
             name="email"
@@ -107,11 +107,11 @@ const AuthForm = ({ type }: { type: FormType }) => {
                     />
                   </FormControl>
                 </div>
-
                 <FormMessage className="sahd-form-message" />
               </FormItem>
             )}
           />
+
           <Button
             type="submit"
             className="form-submit-button"
@@ -128,8 +128,10 @@ const AuthForm = ({ type }: { type: FormType }) => {
               />
             )}
           </Button>
+
           {errorMessage && <p className="error-message">*{errorMessage}</p>}
-          <div className="body-2 flex justify-center ">
+
+          <div className="body-2 flex justify-center">
             <p className="text-light-100">
               {type === "sign-in"
                 ? "Don't have an account?"
@@ -144,7 +146,10 @@ const AuthForm = ({ type }: { type: FormType }) => {
           </div>
         </form>
       </Form>
-      {/* otp  */}
+
+      {accountId && (
+        <OTPModal email={form.getValues("email")} accountId={accountId} />
+      )}
     </>
   );
 };
