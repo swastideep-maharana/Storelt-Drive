@@ -1,9 +1,11 @@
-import React from 'react'
+import React from "react";
 
-const FileUploader = () => {
-  return (
-    <div>FileUploader</div>
-  )
+interface FileUploaderProps {
+  ownerId: string;
+  accountId: string;
 }
+const FileUploader: React.FC<FileUploaderProps> = ({ ownerId, accountId }) => {
+  return <div>FileUploader</div>;
+};
 
-export default FileUploader
+export default FileUploader;
