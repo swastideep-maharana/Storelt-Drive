@@ -26,6 +26,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "cloud.appwrite.io",
       },
+      {
+        protocol: "https",
+        hostname: "mir-s3-cdn-cf.behance.net",
+      },
+      {
+        protocol: "https",
+        hostname: "fra.cloud.appwrite.io", // ✅ Add this for Appwrite image URLs
+      },
     ],
   },
 };

@@ -27,7 +27,7 @@ const Sidebar = ({ fullName, avatar, email }: Props) => {
         />
 
         <Image
-          src="/assets/icons/logo-full-brand.svg"
+          src="/assets/icons/logo-brand.svg"
           alt="logo"
           width={52}
           height={52}
@@ -72,14 +72,14 @@ const Sidebar = ({ fullName, avatar, email }: Props) => {
 
       <div className="sidebar-user-info">
         <Image
-          src="/assets/images/avatar.png"
+          src={avatar}
           alt="Avatar"
           width={44}
           height={44}
           className="sidebar-user-avatar"
         />
         <div className="hidden lg:block">
-          <p className="subtitle-2 capitalize ">{fullName}</p>
+          <p className="subtitle-2 capitalize">{fullName}</p>
           <p className="caption">{email}</p>
         </div>
       </div>
