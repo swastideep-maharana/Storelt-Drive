@@ -13,22 +13,19 @@ interface Props {
 export const Thumbnail = ({
   type,
   extension,
-  url,
+  url = "",
   imageClassName,
   className,
 }: Props) => {
-  const isImage = type === "image" && extension.toLowerCase() !== "svg";
-
-  const src = isImage && url ? url : getFileIcon(extension, type);
+  const isImage = type === "image" && extension !== "svg";
 
   return (
     <figure className={cn("thumbnail", className)}>
       <Image
-        src={src}
-        alt={`Thumbnail for ${extension} file`}
+        src={isImage ? url : getFileIcon(extension, type)}
+        alt="thumbnail"
         width={100}
         height={100}
-        loading="lazy"
         className={cn(
           "size-8 object-contain",
           imageClassName,
@@ -38,5 +35,4 @@ export const Thumbnail = ({
     </figure>
   );
 };
-
 export default Thumbnail;
