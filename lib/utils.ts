@@ -1,38 +1,39 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-// Utility to merge Tailwind + conditionals
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
-
-// Safe deep clone
 export const parseStringify = (value: unknown) =>
   JSON.parse(JSON.stringify(value));
 
-// File helpers
 export const convertFileToUrl = (file: File) => URL.createObjectURL(file);
 
-export const convertFileSize = (sizeInBytes: number, digits = 1): string => {
-  if (sizeInBytes < 1024) return `${sizeInBytes} Bytes`;
-  if (sizeInBytes < 1024 * 1024)
-    return `${(sizeInBytes / 1024).toFixed(digits)} KB`;
-  if (sizeInBytes < 1024 * 1024 * 1024)
-    return `${(sizeInBytes / (1024 * 1024)).toFixed(digits)} MB`;
-
-  return `${(sizeInBytes / (1024 * 1024 * 1024)).toFixed(digits)} GB`;
+export const convertFileSize = (sizeInBytes: number, digits?: number) => {
+  if (sizeInBytes < 1024) {
+    return sizeInBytes + " Bytes"; // Less than 1 KB, show in Bytes
+  } else if (sizeInBytes < 1024 * 1024) {
+    const sizeInKB = sizeInBytes / 1024;
+    return sizeInKB.toFixed(digits || 1) + " KB"; // Less than 1 MB, show in KB
+  } else if (sizeInBytes < 1024 * 1024 * 1024) {
+    const sizeInMB = sizeInBytes / (1024 * 1024);
+    return sizeInMB.toFixed(digits || 1) + " MB"; // Less than 1 GB, show in MB
+  } else {
+    const sizeInGB = sizeInBytes / (1024 * 1024 * 1024);
+    return sizeInGB.toFixed(digits || 1) + " GB"; // 1 GB or more, show in GB
+  }
 };
 
-export const calculatePercentage = (sizeInBytes: number): number => {
-  const total = 2 * 1024 * 1024 * 1024; // 2 GB
-  return Number(((sizeInBytes / total) * 100).toFixed(2));
+export const calculatePercentage = (sizeInBytes: number) => {
+  const totalSizeInBytes = 2 * 1024 * 1024 * 1024; // 2GB in bytes
+  const percentage = (sizeInBytes / totalSizeInBytes) * 100;
+  return Number(percentage.toFixed(2));
 };
 
-// Determine file type
-export const getFileType = (
-  fileName: string
-): { type: string; extension: string } => {
-  const extension = fileName.split(".").pop()?.toLowerCase() || "";
+export const getFileType = (fileName: string) => {
+  const extension = fileName.split(".").pop()?.toLowerCase();
+
+  if (!extension) return { type: "other", extension: "" };
 
   const documentExtensions = [
     "pdf",
@@ -59,6 +60,7 @@ export const getFileType = (
     "sketch",
     "afdesign",
     "afphoto",
+    "afphoto",
   ];
   const imageExtensions = ["jpg", "jpeg", "png", "gif", "bmp", "svg", "webp"];
   const videoExtensions = ["mp4", "avi", "mov", "mkv", "webm"];
@@ -73,16 +75,20 @@ export const getFileType = (
   return { type: "other", extension };
 };
 
-// Format ISO string to human-readable time
-export const formatDateTime = (isoString?: string | null): string => {
+export const formatDateTime = (isoString: string | null | undefined) => {
   if (!isoString) return "—";
 
   const date = new Date(isoString);
+
+  // Get hours and adjust for 12-hour format
   let hours = date.getHours();
   const minutes = date.getMinutes();
   const period = hours >= 12 ? "pm" : "am";
+
+  // Convert hours to 12-hour format
   hours = hours % 12 || 12;
 
+  // Format the time and date parts
   const time = `${hours}:${minutes.toString().padStart(2, "0")}${period}`;
   const day = date.getDate();
   const monthNames = [
@@ -104,64 +110,80 @@ export const formatDateTime = (isoString?: string | null): string => {
   return `${time}, ${day} ${month}`;
 };
 
-// Get file icon based on extension or type
 export const getFileIcon = (
   extension: string | undefined,
-  type: string
-): string => {
-  const icons: Record<string, string> = {
-    pdf: "/assets/icons/file-pdf.svg",
-    doc: "/assets/icons/file-doc.svg",
-    docx: "/assets/icons/file-docx.svg",
-    csv: "/assets/icons/file-csv.svg",
-    txt: "/assets/icons/file-txt.svg",
-    xls: "/assets/icons/file-document.svg",
-    xlsx: "/assets/icons/file-document.svg",
-    svg: "/assets/icons/file-image.svg",
-    mkv: "/assets/icons/file-video.svg",
-    mov: "/assets/icons/file-video.svg",
-    avi: "/assets/icons/file-video.svg",
-    wmv: "/assets/icons/file-video.svg",
-    mp4: "/assets/icons/file-video.svg",
-    flv: "/assets/icons/file-video.svg",
-    webm: "/assets/icons/file-video.svg",
-    m4v: "/assets/icons/file-video.svg",
-    "3gp": "/assets/icons/file-video.svg",
-    mp3: "/assets/icons/file-audio.svg",
-    mpeg: "/assets/icons/file-audio.svg",
-    wav: "/assets/icons/file-audio.svg",
-    aac: "/assets/icons/file-audio.svg",
-    flac: "/assets/icons/file-audio.svg",
-    ogg: "/assets/icons/file-audio.svg",
-    wma: "/assets/icons/file-audio.svg",
-    m4a: "/assets/icons/file-audio.svg",
-    aiff: "/assets/icons/file-audio.svg",
-    alac: "/assets/icons/file-audio.svg",
-  };
+  type: FileType | string
+) => {
+  switch (extension) {
+    // Document
+    case "pdf":
+      return "/assets/icons/file-pdf.svg";
+    case "doc":
+      return "/assets/icons/file-doc.svg";
+    case "docx":
+      return "/assets/icons/file-docx.svg";
+    case "csv":
+      return "/assets/icons/file-csv.svg";
+    case "txt":
+      return "/assets/icons/file-txt.svg";
+    case "xls":
+    case "xlsx":
+      return "/assets/icons/file-document.svg";
+    // Image
+    case "svg":
+      return "/assets/icons/file-image.svg";
+    // Video
+    case "mkv":
+    case "mov":
+    case "avi":
+    case "wmv":
+    case "mp4":
+    case "flv":
+    case "webm":
+    case "m4v":
+    case "3gp":
+      return "/assets/icons/file-video.svg";
+    // Audio
+    case "mp3":
+    case "mpeg":
+    case "wav":
+    case "aac":
+    case "flac":
+    case "ogg":
+    case "wma":
+    case "m4a":
+    case "aiff":
+    case "alac":
+      return "/assets/icons/file-audio.svg";
 
-  if (extension && icons[extension]) return icons[extension];
-
-  const typeMap: Record<string, string> = {
-    image: "/assets/icons/file-image.svg",
-    document: "/assets/icons/file-document.svg",
-    video: "/assets/icons/file-video.svg",
-    audio: "/assets/icons/file-audio.svg",
-  };
-
-  return typeMap[type] || "/assets/icons/file-other.svg";
+    default:
+      switch (type) {
+        case "image":
+          return "/assets/icons/file-image.svg";
+        case "document":
+          return "/assets/icons/file-document.svg";
+        case "video":
+          return "/assets/icons/file-video.svg";
+        case "audio":
+          return "/assets/icons/file-audio.svg";
+        default:
+          return "/assets/icons/file-other.svg";
+      }
+  }
 };
 
-// ========== Appwrite URL UTILS ==========
-export const constructFileUrl = (bucketFileId: string): string => {
-  return `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/${process.env.NEXT_PUBLIC_APPWRITE_BUCKET}/files/${bucketFileId}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`;
+// APPWRITE URL UTILS
+// Construct appwrite file URL - https://appwrite.io/docs/apis/rest#images
+export const constructFileUrl = (bucketFileId: string) => {
+  return `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/${process.env.NEXT_PUBLIC_APPWRITE_BUCKET}/files/${bucketFileId}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT}`;
 };
 
-export const constructDownloadUrl = (bucketFileId: string): string => {
-  return `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/${process.env.NEXT_PUBLIC_APPWRITE_BUCKET}/files/${bucketFileId}/download?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`;
+export const constructDownloadUrl = (bucketFileId: string) => {
+  return `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/${process.env.NEXT_PUBLIC_APPWRITE_BUCKET}/files/${bucketFileId}/download?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT}`;
 };
 
-// ========== Dashboard Usage UI Helper ==========
-export const getUsageSummary = (totalSpace: Record<string, any>) => {
+// DASHBOARD UTILS
+export const getUsageSummary = (totalSpace: any) => {
   return [
     {
       title: "Documents",
@@ -197,8 +219,7 @@ export const getUsageSummary = (totalSpace: Record<string, any>) => {
   ];
 };
 
-// Return matching types based on route param
-export const getFileTypesParams = (type: string): string[] => {
+export const getFileTypesParams = (type: string) => {
   switch (type) {
     case "documents":
       return ["document"];

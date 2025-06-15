@@ -5,15 +5,16 @@ import { appwriteConfig } from "@/lib/appwrite/config";
 import { cookies } from "next/headers";
 
 export const createSessionClient = async () => {
+  const sessionCookie = (await cookies()).get("appwrite-session");
+
+  if (!sessionCookie?.value) {
+    throw new Error("❌ No Appwrite session found in cookies.");
+  }
+
   const client = new Client()
-    .setEndpoint(appwriteConfig.endpointUrl)
-    .setProject(appwriteConfig.projectId);
-
-  const session = (await cookies()).get("appwrite-session");
-
-  if (!session || !session.value) throw new Error("No session");
-
-  client.setSession(session.value);
+    .setEndpoint(appwriteConfig.endpoint)
+    .setProject(appwriteConfig.project)
+    .setSession(sessionCookie.value);
 
   return {
     get account() {
@@ -26,9 +27,13 @@ export const createSessionClient = async () => {
 };
 
 export const createAdminClient = async () => {
+  if (!appwriteConfig.secretKey) {
+    throw new Error("❌ Appwrite secret key is missing. Check .env.");
+  }
+
   const client = new Client()
-    .setEndpoint(appwriteConfig.endpointUrl)
-    .setProject(appwriteConfig.projectId)
+    .setEndpoint(appwriteConfig.endpoint)
+    .setProject(appwriteConfig.project)
     .setKey(appwriteConfig.secretKey);
 
   return {
