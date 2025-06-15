@@ -1,10 +1,11 @@
 "use server";
 
+import { createAdminClient, createSessionClient } from "@/lib/appwrite";
+import { appwriteConfig } from "@/lib/appwrite/config";
 import { Query, ID } from "node-appwrite";
-import { createAdminClient, createSessionClient } from "../appwrite";
-import { appwriteConfig } from "../appwrite/config";
-import { parseStringify } from "../utils";
+import { parseStringify } from "@/lib/utils";
 import { cookies } from "next/headers";
+import { avatarPlaceholderUrl } from "@/constants";
 import { redirect } from "next/navigation";
 
 const getUserByEmail = async (email: string) => {
@@ -58,8 +59,7 @@ export const createAccount = async ({
       {
         fullName,
         email,
-        avatar:
-          "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/599e3b95636919.5eb96c0445ea7.jpg",
+        avatar: avatarPlaceholderUrl,
         accountId,
       }
     );
