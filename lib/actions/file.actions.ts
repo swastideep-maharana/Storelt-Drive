@@ -8,7 +8,7 @@ import { constructFileUrl, getFileType, parseStringify } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/actions/user.actions";
 
-const handleError = (error: unknown, message: string) => {
+const handleError = (error: unknown) => {
   // TODO: Integrate error reporting here
   throw error;
 };
@@ -51,13 +51,13 @@ export const uploadFile = async ({
       )
       .catch(async (error: unknown) => {
         await storage.deleteFile(appwriteConfig.bucketId, bucketFile.$id);
-        handleError(error, "Failed to create file document");
+        handleError(error);
       });
 
     revalidatePath(path);
     return parseStringify(newFile);
   } catch (error) {
-    handleError(error, "Failed to upload file");
+    handleError(error);
   }
 };
 
@@ -114,7 +114,7 @@ export const getFiles = async ({
     // TODO: Integrate error reporting here
     return parseStringify(files);
   } catch (error) {
-    handleError(error, "Failed to get files");
+    handleError(error);
   }
 };
 
@@ -140,7 +140,7 @@ export const renameFile = async ({
     revalidatePath(path);
     return parseStringify(updatedFile);
   } catch (error) {
-    handleError(error, "Failed to rename file");
+    handleError(error);
   }
 };
 
@@ -164,7 +164,7 @@ export const updateFileUsers = async ({
     revalidatePath(path);
     return parseStringify(updatedFile);
   } catch (error) {
-    handleError(error, "Failed to rename file");
+    handleError(error);
   }
 };
 
@@ -189,7 +189,7 @@ export const deleteFile = async ({
     revalidatePath(path);
     return parseStringify({ status: "success" });
   } catch (error) {
-    handleError(error, "Failed to rename file");
+    handleError(error);
   }
 };
 
@@ -231,6 +231,6 @@ export async function getTotalSpaceUsed() {
 
     return parseStringify(totalSpace);
   } catch (error) {
-    handleError(error, "Error calculating total space used:, ");
+    handleError(error);
   }
 }

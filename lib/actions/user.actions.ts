@@ -20,7 +20,7 @@ const getUserByEmail = async (email: string) => {
   return result.total > 0 ? result.documents[0] : null;
 };
 
-const handleError = (error: unknown, message: string) => {
+const handleError = (error: unknown) => {
   // TODO: Integrate error reporting here
   throw error;
 };
@@ -33,7 +33,7 @@ export const sendEmailOTP = async ({ email }: { email: string }) => {
 
     return session.userId;
   } catch (error) {
-    handleError(error, "Failed to send email OTP");
+    handleError(error);
   }
 };
 
@@ -89,7 +89,7 @@ export const verifySecret = async ({
 
     return parseStringify({ sessionId: session.$id });
   } catch (error) {
-    handleError(error, "Failed to verify OTP");
+    handleError(error);
   }
 };
 
@@ -108,8 +108,9 @@ export const getCurrentUser = async () => {
     if (user.total <= 0) return null;
 
     return parseStringify(user.documents[0]);
-  } catch (error) {
+  } catch {
     // TODO: Integrate error reporting here
+    return null;
   }
 };
 
@@ -120,7 +121,7 @@ export const signOutUser = async () => {
     await account.deleteSession("current");
     (await cookies()).delete("appwrite-session");
   } catch (error) {
-    handleError(error, "Failed to sign out user");
+    handleError(error);
   } finally {
     redirect("/sign-in");
   }
@@ -138,6 +139,6 @@ export const signInUser = async ({ email }: { email: string }) => {
 
     return parseStringify({ accountId: null, error: "User not found" });
   } catch (error) {
-    handleError(error, "Failed to sign in user");
+    handleError(error);
   }
 };

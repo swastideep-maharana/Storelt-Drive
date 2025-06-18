@@ -4,11 +4,18 @@ import { useState } from "react";
 import {
   validateAppwriteConfig,
   getAppwriteStatus,
+  ValidationResult,
 } from "@/lib/appwrite/validator";
 
+interface StatusResult {
+  status: string;
+  message: string;
+}
+
 export default function DebugPage() {
-  const [validationResult, setValidationResult] = useState<any>(null);
-  const [status, setStatus] = useState<any>(null);
+  const [validationResult, setValidationResult] =
+    useState<ValidationResult | null>(null);
+  const [status, setStatus] = useState<StatusResult | null>(null);
   const [loading, setLoading] = useState(false);
 
   const runValidation = async () => {
@@ -17,7 +24,11 @@ export default function DebugPage() {
       const result = await validateAppwriteConfig();
       setValidationResult(result);
     } catch (error) {
-      setValidationResult({ isValid: false, errors: [error], warnings: [] });
+      setValidationResult({
+        isValid: false,
+        errors: [String(error)],
+        warnings: [],
+      });
     }
     setLoading(false);
   };
@@ -28,7 +39,7 @@ export default function DebugPage() {
       const result = await getAppwriteStatus();
       setStatus(result);
     } catch (error) {
-      setStatus({ status: "error", message: error });
+      setStatus({ status: "error", message: String(error) });
     }
     setLoading(false);
   };
@@ -150,11 +161,11 @@ export default function DebugPage() {
             </li>
             <li>
               Go to Appwrite Console → Database → Collections → Set all
-              permissions to "Any"
+              permissions to &quot;Any&quot;
             </li>
             <li>
               Go to Appwrite Console → Storage → Bucket → Set all permissions to
-              "Any"
+              &quot;Any&quot;
             </li>
             <li>
               Go to Appwrite Console → Settings → API Keys → Ensure secret key
