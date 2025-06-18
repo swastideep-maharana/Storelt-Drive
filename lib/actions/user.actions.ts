@@ -21,7 +21,7 @@ const getUserByEmail = async (email: string) => {
 };
 
 const handleError = (error: unknown, message: string) => {
-  console.log(error, message);
+  // TODO: Integrate error reporting here
   throw error;
 };
 
@@ -109,7 +109,7 @@ export const getCurrentUser = async () => {
 
     return parseStringify(user.documents[0]);
   } catch (error) {
-    console.log(error);
+    // TODO: Integrate error reporting here
   }
 };
 

@@ -9,7 +9,7 @@ import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/actions/user.actions";
 
 const handleError = (error: unknown, message: string) => {
-  console.log(error, message);
+  // TODO: Integrate error reporting here
   throw error;
 };
 
@@ -111,7 +111,7 @@ export const getFiles = async ({
       queries
     );
 
-    console.log({ files });
+    // TODO: Integrate error reporting here
     return parseStringify(files);
   } catch (error) {
     handleError(error, "Failed to get files");
