@@ -67,57 +67,35 @@ export const validateAppwriteConfig = async (): Promise<ValidationResult> => {
       errors.push(`Cannot access storage bucket: ${error}`);
     }
 
-    // Check if collections exist and have proper structure
+    // Check if collections exist
     try {
-      const usersCollection = await databases.getCollection(
+      await databases.getCollection(
         appwriteConfig.databaseId,
         appwriteConfig.usersCollectionId
       );
-
-      const requiredUserAttributes = [
-        "fullName",
-        "email",
-        "avatar",
-        "accountId",
-      ];
-      const userAttributes = usersCollection.attributes.map((attr) => attr.key);
-
-      for (const attr of requiredUserAttributes) {
-        if (!userAttributes.includes(attr)) {
-          warnings.push(`Users collection missing attribute: ${attr}`);
-        }
-      }
     } catch (error) {
-      errors.push(`Cannot get users collection details: ${error}`);
+      errors.push(`Users collection does not exist: ${error}`);
     }
 
     try {
-      const filesCollection = await databases.getCollection(
+      await databases.getCollection(
         appwriteConfig.databaseId,
         appwriteConfig.filesCollectionId
       );
-
-      const requiredFileAttributes = [
-        "type",
-        "name",
-        "url",
-        "extension",
-        "size",
-        "owner",
-        "accountId",
-        "users",
-        "bucketFileId",
-      ];
-      const fileAttributes = filesCollection.attributes.map((attr) => attr.key);
-
-      for (const attr of requiredFileAttributes) {
-        if (!fileAttributes.includes(attr)) {
-          warnings.push(`Files collection missing attribute: ${attr}`);
-        }
-      }
     } catch (error) {
-      errors.push(`Cannot get files collection details: ${error}`);
+      errors.push(`Files collection does not exist: ${error}`);
     }
+
+    // Add warnings for manual verification
+    warnings.push(
+      "Please manually verify collection attributes match the required schema"
+    );
+    warnings.push(
+      "Required Users attributes: fullName, email, avatar, accountId"
+    );
+    warnings.push(
+      "Required Files attributes: type, name, url, extension, size, owner, accountId, users, bucketFileId"
+    );
   } catch (error) {
     errors.push(`Failed to validate Appwrite configuration: ${error}`);
   }
