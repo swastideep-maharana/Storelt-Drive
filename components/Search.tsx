@@ -32,7 +32,7 @@ const Search = () => {
       }
 
       if (isGuestUser()) {
-        const allFiles = dummyFiles.documents;
+        const allFiles = dummyFiles;
         const filtered = allFiles.filter((file) =>
           file.name.toLowerCase().includes(debouncedQuery.toLowerCase())
         );
