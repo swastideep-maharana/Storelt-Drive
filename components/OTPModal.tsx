@@ -38,7 +38,15 @@ const OTPModal = ({
 
     try {
       const sessionId = await verifySecret({ accountId, password });
-      if (sessionId) router.push("/");
+      if (sessionId) {
+        // Clean up guest mode if present
+        if (typeof window !== "undefined") {
+          document.cookie =
+            "guest=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+          localStorage.removeItem("isGuest");
+        }
+        router.push("/");
+      }
     } catch (error) {
       console.error("Failed to verify OTP:", error);
     }

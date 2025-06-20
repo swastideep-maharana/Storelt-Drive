@@ -122,11 +122,10 @@ const AuthForm = ({ type }: { type: FormType }) => {
 
           <Button
             type="submit"
-            className="form-submit-button"
+            className="form-submit-button text-base font-bold"
             disabled={isLoading}
           >
             {type === "sign-in" ? "Sign In" : "Sign Up"}
-
             {isLoading && (
               <Image
                 src="/assets/icons/loader.svg"
@@ -137,6 +136,25 @@ const AuthForm = ({ type }: { type: FormType }) => {
               />
             )}
           </Button>
+
+          {/* Guest Sign In Button */}
+          {type === "sign-in" && (
+            <Button
+              type="button"
+              variant="outline"
+              className="form-submit-button mt-2 text-base font-bold"
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  // Set guest cookie for server-side detection (expires in 1 day)
+                  document.cookie = "guest=true; path=/; max-age=86400";
+                  localStorage.setItem("isGuest", "true");
+                  window.location.replace("/");
+                }
+              }}
+            >
+              Sign in as Guest
+            </Button>
+          )}
 
           {errorMessage && <p className="error-message">*{errorMessage}</p>}
 
@@ -165,3 +183,10 @@ const AuthForm = ({ type }: { type: FormType }) => {
 };
 
 export default AuthForm;
+
+export const isGuestUser = () => {
+  if (typeof window !== "undefined") {
+    return localStorage.getItem("isGuest") === "true";
+  }
+  return false;
+};

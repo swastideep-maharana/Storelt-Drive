@@ -10,6 +10,9 @@ import { Models } from "node-appwrite";
 import Thumbnail from "@/components/Thumbnail";
 import FormattedDateTime from "@/components/FormattedDateTime";
 import { useDebounce } from "use-debounce";
+import { isGuestUser } from "./AuthForm";
+import { dummyFiles } from "@/lib/dummy-files";
+
 const Search = () => {
   const [query, setQuery] = useState("");
   const searchParams = useSearchParams();
@@ -26,6 +29,16 @@ const Search = () => {
         setResults([]);
         setOpen(false);
         return router.push(path.replace(searchParams.toString(), ""));
+      }
+
+      if (isGuestUser()) {
+        const allFiles = dummyFiles.documents;
+        const filtered = allFiles.filter((file) =>
+          file.name.toLowerCase().includes(debouncedQuery.toLowerCase())
+        );
+        setResults(filtered);
+        setOpen(true);
+        return;
       }
 
       const files = await getFiles({ types: [], searchText: debouncedQuery });

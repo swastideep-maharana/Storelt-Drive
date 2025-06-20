@@ -35,6 +35,10 @@ const nextConfig: NextConfig = {
         hostname: "fra.cloud.appwrite.io", // ✅ Add this for Appwrite image URLs
       },
     ],
+    domains: [
+      "images.unsplash.com",
+      // add more domains here if needed
+    ],
   },
 };
 
